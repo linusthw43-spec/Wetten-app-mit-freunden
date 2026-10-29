@@ -45,7 +45,15 @@
           "delayAppMeasurementInit": true
         }
       ],
-      "./plugins/with-crash-screen"
+      "./plugins/with-crash-screen",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "extraProguardRules": "# Room erzeugt Datenbanken per Reflection (Class.forName + Konstruktor). R8 hat den\n# Konstruktor von androidx.work.impl.WorkDatabase_Impl (WorkManager, kommt mit AdMob) entfernt\n# -> Absturz beim App-Start in androidx.startup.InitializationProvider.\n-keep class * extends androidx.room.RoomDatabase { <init>(); }\n-keep class androidx.work.impl.WorkDatabase_Impl { <init>(); }\n# Lesbare Klassennamen in Absturzberichten (Testphase). Vor dem Store-Release überdenken.\n-dontobfuscate"
+          }
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
