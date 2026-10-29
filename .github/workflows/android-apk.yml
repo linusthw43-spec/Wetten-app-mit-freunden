@@ -23,6 +23,8 @@ env:
   EXPO_PUBLIC_SUPABASE_KEY: sb_publishable_Ndc3xd1FDW2pguxpp3K3vg_qWMkSMc2
   ANDROID_VERSION_CODE: ${{ github.run_number }}
   EXPO_NO_TELEMETRY: 1
+  # Test-Werkzeuge (z. B. "Pro simulieren") in der Test-APK einblenden
+  EXPO_PUBLIC_TEST_TOOLS: 1
 
 jobs:
   apk:

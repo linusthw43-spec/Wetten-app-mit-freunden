@@ -3,21 +3,27 @@ import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
 
+import { AdsProvider } from '@/ads/ads-provider';
 import { AuthProvider, useAuth } from '@/auth/auth-provider';
 import { Button } from '@/components/button';
 import { StatusView } from '@/components/status-view';
 import { ThemedText } from '@/components/themed-text';
 import { queryClient } from '@/lib/query-client';
+import { ProProvider } from '@/purchases/pro-provider';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-          <StatusBar style="auto" />
-          <RootNavigator />
-        </ThemeProvider>
+        <ProProvider>
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+            <AdsProvider>
+              <StatusBar style="auto" />
+              <RootNavigator />
+            </AdsProvider>
+          </ThemeProvider>
+        </ProProvider>
       </AuthProvider>
     </QueryClientProvider>
   );
@@ -74,6 +80,7 @@ function RootNavigator() {
         <Stack.Screen name="join/[code]" options={{ title: 'Gruppe beitreten', presentation: 'modal' }} />
         <Stack.Screen name="bet/new" options={{ title: 'Neue Wette', presentation: 'modal' }} />
         <Stack.Screen name="bet/[id]" options={{ title: 'Wette' }} />
+        <Stack.Screen name="pro" options={{ title: 'Pro', presentation: 'modal' }} />
       </Stack.Protected>
     </Stack>
   );

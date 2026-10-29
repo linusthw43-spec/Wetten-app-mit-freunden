@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { AdFooter } from '@/ads/ad-footer';
 import { useLeaderboard } from '@/api/groups';
 import { useAuth } from '@/auth/auth-provider';
 import { Card } from '@/components/card';
@@ -30,7 +31,11 @@ export default function LeaderboardScreen() {
   const loser = weeklyLoser(board.data);
 
   return (
-    <Screen edges={['bottom']} refreshing={board.isRefetching} onRefresh={board.refetch}>
+    <Screen
+      edges={['bottom']}
+      refreshing={board.isRefetching}
+      onRefresh={board.refetch}
+      footer={<AdFooter />}>
       <Card style={styles.loserCard}>
         <Text style={styles.loserEmoji}>{loser ? '🤡' : '😇'}</Text>
         <View style={styles.flex}>

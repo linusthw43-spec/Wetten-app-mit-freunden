@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { useAds } from '@/ads/ads-context';
 import { useCreateBet } from '@/api/bets';
 import { Button } from '@/components/button';
 import { Screen } from '@/components/screen';
@@ -22,14 +23,19 @@ export default function NewBetScreen() {
   const { groupId } = useLocalSearchParams<{ groupId: string }>();
   const [question, setQuestion] = useState('');
   const createBet = useCreateBet(groupId);
+  const ads = useAds();
   const trimmed = question.trim();
   const valid = trimmed.length >= 3;
 
   function submit() {
     if (!valid) return;
     createBet.mutate(trimmed, {
-      // Zurück zur Gruppe. Ab Phase 3 kommt hier (in einer natürlichen Pause) ggf. ein Interstitial.
-      onSuccess: () => router.back(),
+      // Wette steht: zurück zur Gruppe. Dort (natürliche Pause) kommt ggf. ein Interstitial,
+      // nie während man noch tippt.
+      onSuccess: () => {
+        ads.queueInterstitial();
+        router.back();
+      },
       onError: (e) => showAlert('Hat nicht geklappt', errorMessage(e)),
     });
   }

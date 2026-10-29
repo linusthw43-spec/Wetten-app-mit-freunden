@@ -1,5 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
+import { useAds } from '@/ads/ads-context';
 import { useBetAction } from '@/api/bets';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
@@ -13,6 +14,7 @@ import type { Bet } from '@/lib/types';
 /** Nur für den Ersteller: Einsätze stoppen, Ergebnis eintragen, abbrechen. */
 export function CreatorActions({ bet }: { bet: Bet }) {
   const action = useBetAction(bet);
+  const ads = useAds();
   const onError = (e: unknown) => showAlert('Hat nicht geklappt', errorMessage(e));
 
   function resolve(outcome: Side) {
@@ -22,8 +24,13 @@ export function CreatorActions({ bet }: { bet: Bet }) {
       `„${bet.question}“\n\nDas Ergebnis ist endgültig und die Coins werden sofort verteilt.`,
       [
         { text: 'Abbrechen', style: 'cancel' },
-        // Ab Phase 3 folgt nach dem Auswerten (natürliche Pause) ggf. ein Interstitial.
-        { text: `${label} eintragen`, onPress: () => action.mutate({ type: 'resolve', outcome }, { onError }) },
+        {
+          text: `${label} eintragen`,
+          // Erst das Ergebnis in Ruhe zeigen. Ein Interstitial kommt frühestens,
+          // wenn man zurück zur Gruppe geht (natürliche Pause).
+          onPress: () =>
+            action.mutate({ type: 'resolve', outcome }, { onError, onSuccess: ads.queueInterstitial }),
+        },
       ]
     );
   }

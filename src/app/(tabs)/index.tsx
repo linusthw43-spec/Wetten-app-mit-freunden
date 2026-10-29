@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
+import { AdFooter } from '@/ads/ad-footer';
 import { useMyGroups } from '@/api/groups';
 import { Button } from '@/components/button';
 import { Card } from '@/components/card';
@@ -17,7 +18,11 @@ export default function GroupsScreen() {
   useRefreshOnFocus(groups.refetch);
 
   return (
-    <Screen edges={['top']} refreshing={groups.isRefetching} onRefresh={groups.refetch}>
+    <Screen
+      edges={['top']}
+      refreshing={groups.isRefetching}
+      onRefresh={groups.refetch}
+      footer={<AdFooter />}>
       <ThemedText type="title">Deine Gruppen</ThemedText>
 
       <View style={styles.actions}>

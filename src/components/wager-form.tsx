@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { RewardedButton } from '@/ads/rewarded-button';
 import { usePlaceWager } from '@/api/bets';
 import { Button } from '@/components/button';
 import { TextField } from '@/components/text-field';
@@ -44,9 +45,10 @@ export function WagerForm({ bet, userId, balance }: WagerFormProps) {
 
   if (balance <= 0) {
     return (
-      <ThemedText themeColor="textSecondary">
-        Du hast in dieser Gruppe keine Coins mehr. 😬 (Ab Phase 3: Video schauen = +100 🪙)
-      </ThemedText>
+      <View style={styles.root}>
+        <ThemedText themeColor="textSecondary">Du hast in dieser Gruppe keine Coins mehr. 😬</ThemedText>
+        <RewardedButton groupId={bet.group_id} />
+      </View>
     );
   }
 

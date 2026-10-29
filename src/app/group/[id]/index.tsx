@@ -1,6 +1,10 @@
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { useAds } from '@/ads/ads-context';
+import { AdFooter } from '@/ads/ad-footer';
+import { RewardedButton } from '@/ads/rewarded-button';
 import { useBets } from '@/api/bets';
 import { useGroup } from '@/api/groups';
 import { BetCard } from '@/components/bet-card';
@@ -23,6 +27,15 @@ export default function GroupScreen() {
   const refetchAll = () => Promise.all([group.refetch(), bets.refetch()]);
   useRefreshOnFocus(refetchAll);
 
+  // Zurück in der Gruppe (nach "Wette erstellt" oder "Wette ausgewertet") ist eine
+  // natürliche Pause: Nur hier darf ein vorgemerktes Interstitial erscheinen.
+  const { naturalBreak } = useAds();
+  useFocusEffect(
+    useCallback(() => {
+      naturalBreak();
+    }, [naturalBreak])
+  );
+
   if (group.isPending) return <StatusView loading />;
   if (group.isError) {
     return <StatusView emoji="🤷" title="Gruppe nicht gefunden" message={errorMessage(group.error)} />;
@@ -36,7 +49,8 @@ export default function GroupScreen() {
     <Screen
       edges={['bottom']}
       refreshing={group.isRefetching || bets.isRefetching}
-      onRefresh={refetchAll}>
+      onRefresh={refetchAll}
+      footer={<AdFooter />}>
       <Stack.Screen options={{ title: `${g.emoji} ${g.name}` }} />
 
       <Card>
@@ -56,6 +70,7 @@ export default function GroupScreen() {
         <ThemedText type="small" themeColor="textSecondary" style={styles.center}>
           Einladungscode: <ThemedText type="smallBold">{g.invite_code}</ThemedText>
         </ThemedText>
+        <RewardedButton groupId={id} />
       </Card>
 
       <Button
