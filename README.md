@@ -96,6 +96,16 @@ Alles liegt in `src/ads/`. Mit Pro wird nichts davon angezeigt.
 **Bekannte Grenze:** Ein Bastler könnte `claim_rewarded_coins` ohne Video aufrufen (max. 500 🪙/Tag/Gruppe).
 Wasserdicht wäre die serverseitige Prüfung (AdMob „Server-Side Verification“ über eine Supabase Edge Function). Das lässt sich später ergänzen.
 
+## Absturzbericht (ohne Computer)
+
+Stürzt die App ab, erscheint ein Bildschirm „Die App ist abgestürzt 😵“ mit dem Fehlertext.
+Dort: **„Bericht teilen“** (z. B. per WhatsApp/Mail an den Entwickler), **„Kopieren“**,
+**„App neu starten“** oder **„Ohne Werbung neu starten“** (abgesicherter Modus, falls die Werbung schuld ist).
+Der letzte Bericht lässt sich auch später im Profil teilen. Im Test-Build gibt es im Profil „Test-Absturz auslösen“.
+
+Technik: `plugins/with-crash-screen.js` (Expo-Config-Plugin) baut einen nativen Absturz-Handler und eine eigene
+Activity im Prozess `:crash` ein. Das fängt native Abstürze und fatale JavaScript-Fehler ab.
+
 ## Ordnerstruktur
 
 ```
@@ -106,7 +116,8 @@ src/api/            Datenzugriff (React Query + Supabase)
 src/auth/           Login + Profil-Context
 src/components/     UI-Bausteine
 src/constants/      Farben, Abstände, Standard-Emojis
-src/lib/            Supabase-Client, Typen, Auszahl-Logik, Formatierung
+src/lib/            Supabase-Client, Typen, Auszahl-Logik, Formatierung, Absturzbericht
+plugins/            Eigene Expo-Config-Plugins (Absturz-Anzeige)
 supabase/migrations SQL für Tabellen, Zugriffsregeln (RLS) und Coin-Funktionen
 supabase/tests      SQL-Tests (laufen gegen ein normales Postgres)
 ```

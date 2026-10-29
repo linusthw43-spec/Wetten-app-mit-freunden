@@ -13,6 +13,7 @@ import { AdsContext, type AdsContextValue, type RewardedStatus } from '@/ads/ads
 import { AdUnits } from '@/ads/ad-units';
 import { canShowInterstitial } from '@/ads/frequency';
 import { useAuth } from '@/auth/auth-provider';
+import { isSafeMode } from '@/lib/crash-log';
 import { usePro } from '@/purchases/pro-provider';
 
 const RETRY_MS = 60_000;
@@ -29,6 +30,8 @@ export function AdsProvider({ children }: { children: ReactNode }) {
   const { isPro } = usePro();
   const { profile } = useAuth();
 
+  // Nach einem Absturz kann man "ohne Werbung" neu starten (siehe plugins/with-crash-screen.js).
+  const [safeMode] = useState(isSafeMode);
   const [phase, setPhase] = useState<Phase>('idle');
   const [nonPersonalized, setNonPersonalized] = useState(true);
   const [privacyOptionsRequired, setPrivacyOptionsRequired] = useState(false);
@@ -54,6 +57,7 @@ export function AdsProvider({ children }: { children: ReactNode }) {
 
   // 1. Einwilligung (UMP) einholen, 2. erst danach das SDK starten.
   const ensureStarted = useCallback(() => {
+    if (safeMode) return Promise.resolve();
     startPromise.current ??= (async () => {
       setPhase('starting');
       let info: AdsConsentInfo | null = null;
@@ -84,7 +88,7 @@ export function AdsProvider({ children }: { children: ReactNode }) {
       }
     })();
     return startPromise.current;
-  }, [applyConsentInfo]);
+  }, [applyConsentInfo, safeMode]);
 
   // Gratis-Nutzer: nach dem Onboarding starten. Pro-Nutzer erst, wenn sie ein Video wollen.
   useEffect(() => {
