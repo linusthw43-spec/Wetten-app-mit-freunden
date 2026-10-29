@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
 import { MaxContentWidth, Spacing } from '@/constants/theme';
@@ -12,16 +12,33 @@ type ScreenProps = {
   /** Bereich unter dem Inhalt, z. B. für den Werbebanner (ab Phase 3). */
   footer?: ReactNode;
   edges?: Edge[];
+  /** Pull-to-Refresh (nur mit scroll). */
+  refreshing?: boolean;
+  onRefresh?: () => void;
 };
 
-export function Screen({ children, scroll = true, footer, edges = ['top', 'bottom'] }: ScreenProps) {
+export function Screen({
+  children,
+  scroll = true,
+  footer,
+  edges = ['top', 'bottom'],
+  refreshing = false,
+  onRefresh,
+}: ScreenProps) {
   const theme = useTheme();
   const content = <View style={styles.content}>{children}</View>;
 
   return (
     <SafeAreaView edges={edges} style={[styles.root, { backgroundColor: theme.background }]}>
       {scroll ? (
-        <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={styles.scroll}
+          keyboardShouldPersistTaps="handled"
+          refreshControl={
+            onRefresh ? (
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={theme.accent} />
+            ) : undefined
+          }>
           {content}
         </ScrollView>
       ) : (

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useAuth } from '@/auth/auth-provider';
 import { Button } from '@/components/button';
@@ -7,6 +7,7 @@ import { EmojiPicker } from '@/components/emoji-picker';
 import { TextField } from '@/components/text-field';
 import { ThemedText } from '@/components/themed-text';
 import { FREE_EMOJIS, Spacing } from '@/constants/theme';
+import { showAlert } from '@/lib/dialog';
 
 export const NAME_MAX_LENGTH = 24;
 
@@ -31,7 +32,7 @@ export function ProfileForm({ submitLabel, onSaved }: ProfileFormProps) {
       await saveProfile({ display_name: trimmed, avatar_emoji: emoji });
       onSaved?.();
     } catch (e) {
-      Alert.alert('Speichern fehlgeschlagen', e instanceof Error ? e.message : String(e));
+      showAlert('Speichern fehlgeschlagen', e instanceof Error ? e.message : String(e));
     } finally {
       setSaving(false);
     }
