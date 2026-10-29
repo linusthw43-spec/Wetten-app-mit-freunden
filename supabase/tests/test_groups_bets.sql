@@ -185,3 +185,18 @@ end $$;
 set role anon;
 select tests.expect_error($$select public.create_group('x', '🎲')$$, 'permission denied');
 reset role;
+
+-- ---------------------------------------------------------------- Fremdschlüssel für PostgREST-Embeds
+-- Die App gibt diese Namen in src/api/*.ts explizit an (z. B. profiles!bets_creator_id_fkey).
+-- Wird eine Spalte umbenannt, muss dieser Test (und die App) angepasst werden.
+do $$
+declare
+  missing text;
+begin
+  select string_agg(name, ', ') into missing
+  from unnest(array[
+    'bets_creator_id_fkey', 'wagers_bet_id_fkey', 'wagers_user_id_fkey', 'memberships_group_id_fkey'
+  ]) as name
+  where not exists (select 1 from pg_constraint where conname = name and contype = 'f');
+  assert missing is null, 'Fehlende Fremdschlüssel: ' || missing;
+end $$;

@@ -4,6 +4,9 @@ import { useAuth } from '@/auth/auth-provider';
 import { supabase } from '@/lib/supabase';
 import type { LeaderboardRow, MyGroup } from '@/lib/types';
 
+// Fremdschlüssel explizit, siehe Kommentar in src/api/bets.ts.
+const MEMBERSHIP_SELECT = 'coins, group:groups!memberships_group_id_fkey(*)';
+
 export const groupKeys = {
   all: ['groups'] as const,
   detail: (id: string) => ['groups', id] as const,
@@ -22,7 +25,7 @@ export function useMyGroups() {
     queryFn: async (): Promise<MyGroup[]> => {
       const { data, error } = await supabase
         .from('memberships')
-        .select('coins, group:groups(*)')
+        .select(MEMBERSHIP_SELECT)
         .eq('user_id', userId)
         .order('joined_at', { ascending: false });
       if (error) throw error;
@@ -39,7 +42,7 @@ export function useGroup(groupId: string) {
     queryFn: async (): Promise<MyGroup> => {
       const { data, error } = await supabase
         .from('memberships')
-        .select('coins, group:groups(*)')
+        .select(MEMBERSHIP_SELECT)
         .eq('group_id', groupId)
         .eq('user_id', userId)
         .single();

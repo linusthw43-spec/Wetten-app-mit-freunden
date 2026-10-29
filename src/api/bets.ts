@@ -5,8 +5,12 @@ import { supabase } from '@/lib/supabase';
 import type { Side } from '@/lib/payout';
 import type { Bet } from '@/lib/types';
 
+// Fremdschlüssel immer explizit angeben (!…_fkey): bets und profiles sind sowohl direkt
+// (creator_id) als auch über wagers verbunden, sonst bricht PostgREST mit
+// "more than one relationship was found" ab. supabase/tests prüft, dass die Namen existieren.
 const BET_SELECT =
-  '*, creator:profiles(display_name, avatar_emoji), wagers(user_id, side, amount, payout, profile:profiles(display_name, avatar_emoji))';
+  '*, creator:profiles!bets_creator_id_fkey(display_name, avatar_emoji), ' +
+  'wagers!wagers_bet_id_fkey(user_id, side, amount, payout, profile:profiles!wagers_user_id_fkey(display_name, avatar_emoji))';
 
 export const betKeys = {
   list: (groupId: string) => ['bets', 'group', groupId] as const,
@@ -24,7 +28,7 @@ export function useBets(groupId: string) {
         .order('created_at', { ascending: false })
         .limit(100);
       if (error) throw error;
-      return data as Bet[];
+      return data as unknown as Bet[];
     },
   });
 }
@@ -35,7 +39,7 @@ export function useBet(betId: string) {
     queryFn: async (): Promise<Bet> => {
       const { data, error } = await supabase.from('bets').select(BET_SELECT).eq('id', betId).single();
       if (error) throw error;
-      return data as Bet;
+      return data as unknown as Bet;
     },
   });
 }
